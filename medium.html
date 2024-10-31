@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Medium Summarizer</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f8;
+        color: #333;
+        padding: 20px;
+        max-width: 300px;
+      }
+
+      h3 {
+        font-size: 1.2em;
+        color: #2b7cff;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      #summarizeButton {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #2b7cff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      #summarizeButton:hover {
+        background-color: #1a5ccc;
+      }
+
+      #summaryResult {
+        margin-top: 15px;
+        padding: 10px;
+        background-color: #e9eff6;
+        border-radius: 5px;
+        font-size: 0.95em;
+        color: #555;
+        line-height: 1.5em;
+        min-height: 80px;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Summarize Medium Blog</h3>
+    <button id="summarizeButton">Get Summary</button>
+    <p id="summaryResult">Click "Get Summary" to fetch the summary.</p>
+    <script src="popup.js"></script>
+  </body>
+</html>
