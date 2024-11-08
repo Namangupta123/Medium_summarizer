@@ -1,61 +1,69 @@
 # Medium Blog Summarizer Chrome Extension
 
-A Chrome extension that summarizes Medium blog posts using LangChain and Mistral AI.
+A Chrome extension that summarizes Medium blog posts using LangChain and Mistral AI, with Google Authentication and usage limits.
 
 ## Features
 
-- One-click summarization of Medium blog posts
-- Clean and intuitive user interface
-- Bullet-point format summaries for easy reading
-- Powered by Mistral AI's large language model
+- 🔐 Google Authentication
+- 📝 One-click Medium article summarization
+- 🤖 Powered by Mistral AI and LangChain
+- 📊 Usage tracking (5 summaries per user)
+- 🎨 Clean and modern UI
 
-## Architecture
+## Tech Stack
 
-The extension consists of several components:
-
-### Frontend (Chrome Extension)
-- `manifest.json`: Extension configuration and permissions
-- `medium.html`: Popup interface with summarize button and results display
-- `popup.js`: Handles button click and content extraction
-- `background.js`: Manages communication with backend server
-
-### Backend (Flask Server)
-- `server.py`: Flask server that processes summarization requests using LangChain and Mistral AI
-
-## How It Works
-
-1. User clicks the extension icon on a Medium blog post
-2. Extension extracts the article content
-3. Content is sent to Flask backend server
-4. Server uses LangChain and Mistral AI to generate a summary
-5. Summary is displayed in the extension popup
+- Frontend: HTML, CSS, JavaScript
+- Backend: Flask (Python)
+- AI: Mistral AI, LangChain
+- Authentication: Google OAuth 2.0
 
 ## Setup
 
-1. Clone this repository
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/medium-summarizer.git
+cd medium-summarizer
+```
+
 2. Install Python dependencies:
-   ```
-   pip install flask flask-cors langchain-core langchain-mistralai
-   ```
-3. Load the extension in Chrome:
-   - Go to `chrome://extensions/`
+```bash
+pip install -r requirements.txt
+```
+
+3. Set up environment variables:
+   - Copy `.env.example` to `.env` in the server directory
+   - Add your Mistral AI API key
+   - Add your Google Client ID
+   - Add a JWT secret key
+
+4. Load the extension in Chrome:
+   - Open Chrome and go to `chrome://extensions/`
    - Enable Developer mode
    - Click "Load unpacked"
    - Select the extension directory
 
-4. Start the Flask server:
-   ```
-   python server/server.py
-   ```
+5. Start the Flask server:
+```bash
+cd server
+python server.py
+```
 
-## Technical Details
+## Usage
 
-- Uses Chrome's Scripting API to extract page content
-- CORS-enabled Flask server for handling API requests
-- LangChain for prompt engineering and AI model integration
-- Mistral AI's large language model for high-quality summarization
-- Clean, responsive UI with modern styling
+1. Sign in with your Google account
+2. Navigate to any Medium article
+3. Click the extension icon
+4. Click "Get Summary" to generate a summary
+5. View your remaining usage count
 
-## Note
+## Contributing
 
-Make sure to replace the Mistral API key in `server.py` with your own key before using the extension.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
