@@ -4,54 +4,131 @@
     <title>Medium Summarizer</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f6f8;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background-color: #ffffff;
         color: #333;
         padding: 20px;
-        max-width: 300px;
+        width: 350px;
+        margin: 0;
+      }
+
+      .container {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 
       h3 {
-        font-size: 1.2em;
-        color: #2b7cff;
+        font-size: 1.4em;
+        color: #1a73e8;
         text-align: center;
-        margin-bottom: 10px;
+        margin: 0 0 20px 0;
+        padding-top: 10px;
+        font-weight: 600;
       }
 
-      #summarizeButton {
+      .button {
         display: block;
         width: 100%;
-        padding: 10px;
-        background-color: #2b7cff;
+        padding: 12px;
+        background-color: #1a73e8;
         color: #fff;
         border: none;
-        border-radius: 5px;
+        border-radius: 8px;
         font-size: 1em;
         cursor: pointer;
-        transition: background-color 0.3s;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        margin-bottom: 12px;
       }
 
-      #summarizeButton:hover {
-        background-color: #1a5ccc;
+      .button:hover {
+        background-color: #1557b0;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .button:active {
+        transform: translateY(0);
       }
 
       #summaryResult {
         margin-top: 15px;
-        padding: 10px;
-        background-color: #e9eff6;
-        border-radius: 5px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
         font-size: 0.95em;
-        color: #555;
-        line-height: 1.5em;
+        color: #444;
+        line-height: 1.6;
         min-height: 80px;
-        text-align: left;
+        border: 1px solid #e0e0e0;
+      }
+
+      #usageCount {
+        text-align: center;
+        color: #666;
+        margin: 15px 0;
+        font-size: 0.9em;
+        padding: 8px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+      }
+
+      #userInfo {
+        text-align: center;
+        margin-bottom: 15px;
+        font-size: 0.95em;
+        color: #444;
+        padding: 8px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      #logoutButton {
+        background-color: #dc3545;
+      }
+
+      #logoutButton:hover {
+        background-color: #c82333;
+      }
+
+      .loading {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+      }
+
+      .error {
+        color: #dc3545;
+        text-align: center;
+        margin: 10px 0;
+        font-size: 0.9em;
       }
     </style>
   </head>
   <body>
-    <h3>Summarize Medium Blog</h3>
-    <button id="summarizeButton">Get Summary</button>
-    <p id="summaryResult">Click "Get Summary" to fetch the summary.</p>
+    <div class="container">
+      <h3>Medium Summarizer</h3>
+      <div id="loginSection">
+        <button id="loginButton" class="button">
+          <i class="fab fa-google"></i> Sign in with Google
+        </button>
+      </div>
+      <div id="mainSection" class="hidden">
+        <div id="userInfo"></div>
+        <button id="summarizeButton" class="button">Get Summary</button>
+        <div id="usageCount">Remaining uses: <span id="remainingUses">5</span></div>
+        <div id="summaryResult">Click "Get Summary" to fetch the summary.</div>
+        <div id="error" class="error hidden"></div>
+        <button id="logoutButton" class="button">Sign Out</button>
+      </div>
+    </div>
     <script src="popup.js"></script>
   </body>
 </html>

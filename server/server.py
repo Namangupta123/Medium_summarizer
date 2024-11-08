@@ -5,11 +5,17 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_mistralai import ChatMistralAI
 import os
 from dotenv import load_dotenv
+from functools import wraps
+import jwt
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
-template="""
+
+template = """
 You are an AI summarization agent tasked with summarizing the provided content. Your goal is to create a concise and informative summary that highlights the key points and important notes. Please follow these instructions:
 
 1. **Content Analysis**: Carefully read and analyze the provided content.
@@ -17,44 +23,66 @@ You are an AI summarization agent tasked with summarizing the provided content. 
 3. **Important Notes**: Identify and list any critical notes or insights that should be emphasized.
 4. **Bullet Points**: Present the summary and notes using bullet points for clarity and easy reading.
 
-### Example
-
-**Content**: "The rapid advancement of artificial intelligence has sparked both excitement and concern across various industries. While AI promises increased efficiency and innovative solutions, it also raises questions about job displacement and ethical implications."
-
-**Summary**:
-- AI advancements are causing excitement and concern.
-- Promises of increased efficiency and innovation.
-- Raises questions about job displacement and ethics.
-
-**Important Notes**:
-- Consider the balance between AI benefits and potential job impacts.
-- Ethical considerations are crucial in AI development.
-
 ### Input Variables
 - {{content}}: The text or document you want summarized.
 
-Please ensure that the summary is accurate and reflects the original content's intent. If the content is too complex or lengthy, consider breaking it down into smaller sections for more manageable summarization.
+Please ensure that the summary is accurate and reflects the original content's intent.
 """
-mistral_key=os.getenv("mistral_key")
+
+mistral_key = os.getenv("mistral_key")
 llm = ChatMistralAI(model="mistral-large-latest", temperature=0.6, mistral_api_key=mistral_key, max_tokens=5000)
 prompt = ChatPromptTemplate.from_messages([
     ("system", "You are an AI summarization agent tasked with summarizing the provided content."),
     ("human", template),
 ])
 
+def verify_google_token(token):
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            token, 
+            requests.Request(), 
+            os.getenv('GOOGLE_CLIENT_ID')
+        )
+        return idinfo
+    except ValueError:
+        return None
+
+def verify_token(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 401
+        
+        try:
+            token = token.split('Bearer ')[1]
+            user_info = verify_google_token(token)
+            if not user_info:
+                return jsonify({'message': 'Invalid token'}), 401
+            request.user = user_info
+        except:
+            return jsonify({'message': 'Invalid token'}), 401
+        
+        return f(*args, **kwargs)
+    return decorated
+
 @app.route('/summarize', methods=['POST'])
+@verify_token
 def summarize():
-    content = request.json['content']
-    input_data={
-        "content": content
-    }
-    response = (
-        prompt
-        | llm.bind(stop=["\nsummarization"])
-        | StrOutputParser()
-    )
-    summary=response.invoke(input_data)
-    return jsonify({"summary": summary})
+    try:
+        content = request.json['content']
+        input_data = {
+            "content": content
+        }
+        response = (
+            prompt
+            | llm.bind(stop=["\nsummarization"])
+            | StrOutputParser()
+        )
+        summary = response.invoke(input_data)
+        return jsonify({"summary": summary})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(port=5000)
