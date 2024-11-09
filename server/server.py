@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
+import json
 from flask_cors import CORS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser 
 from langchain_mistralai import ChatMistralAI
 import os
 from dotenv import load_dotenv
+import traceback
 from functools import wraps
 import jwt
 from google.oauth2 import id_token
@@ -38,13 +40,17 @@ prompt = ChatPromptTemplate.from_messages([
 
 def verify_google_token(token):
     try:
+        #print(json.dumps(token))
+        #print(os.getenv("GOOGLE_CLIENT_ID"))
         idinfo = id_token.verify_oauth2_token(
             token, 
             requests.Request(), 
             os.getenv('GOOGLE_CLIENT_ID')
         )
+        print(idinfo)
         return idinfo
-    except ValueError:
+    except ValueError as ve:
+        traceback.print_exc()
         return None
 
 def verify_token(f):
@@ -52,15 +58,19 @@ def verify_token(f):
     def decorated(*args, **kwargs):
         token = request.headers.get('Authorization')
         if not token:
+            print("Err1")
             return jsonify({'message': 'Token is missing'}), 401
         
         try:
+            print(json.dumps(token))
             token = token.split('Bearer ')[1]
             user_info = verify_google_token(token)
             if not user_info:
+                print("Er2")
                 return jsonify({'message': 'Invalid token'}), 401
             request.user = user_info
         except:
+            print("Err3")
             return jsonify({'message': 'Invalid token'}), 401
         
         return f(*args, **kwargs)
