@@ -11,10 +11,18 @@ from functools import wraps
 import jwt
 from google.oauth2 import id_token
 from google.auth.transport import requests
-
+from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["chrome-extension://*"],
+        "supports_credentials": True,
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Authorization", "Content-Type"]
+    }
+})
 CORS(app)
 
 template = """

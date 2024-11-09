@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function handleLogin() {
   try {
     const token = await chrome.identity.getAuthToken({ interactive: true });
-    let idToken=getIdToken(token.token, client_id);
-    console.log(idToken);
+    //let idToken=getIdToken(token.token, client_id);
+    //console.log(idToken);
     console.log(token);
     const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${token.token}` }
@@ -132,7 +132,7 @@ async function fetchSummary(content, token) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token.token}`
       },
       body: JSON.stringify({ content })
     });
