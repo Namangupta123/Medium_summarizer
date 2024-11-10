@@ -12,11 +12,12 @@ import jwt
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from fastapi.middleware.cors import CORSMiddleware
+import requests as http_requests 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={
-    r"/api/*": {
+    r"/*": {
         "origins": ["chrome-extension://*"],
         "supports_credentials": True,
         "methods": ["GET", "POST", "OPTIONS"],
@@ -25,16 +26,30 @@ CORS(app, resources={
 })
 CORS(app)
 
+os.environ["LANGCHAIN_TRACING_V2"]="true"
+os.environ["LANGCHAIN_ENDPOINT"]=os.getenv("LANGSMITH_ENDPOINT")
+os.environ["LANGCHAIN_API_KEY"]=os.getenv("LANGSMITH_API")
+os.environ["LANGCHAIN_PROJECT"]=os.getenv("LANGSMITH_PROJECT")
 template = """
 You are an AI summarization agent tasked with summarizing the provided content. Your goal is to create a concise and informative summary that highlights the key points and important notes. Please follow these instructions:
 
-1. **Content Analysis**: Carefully read and analyze the provided content.
-2. **Summary Creation**: Write a summary that captures the main ideas and essential details. Ensure the summary is clear and concise.
-3. **Important Notes**: Identify and list any critical notes or insights that should be emphasized.
-4. **Bullet Points**: Present the summary and notes using bullet points for clarity and easy reading.
+Instructions
+1. Content Analysis: Carefully read and analyze the provided content.
+2. Summary Creation: Write a summary that captures the main ideas and essential details. Ensure the summary is clear and concise.
+3. Important Notes: Identify and list any critical notes or insights that should be emphasized.
+4. Bullet Points: Present the summary and notes using bullet points for clarity and easy reading.
 
-### Input Variables
-- {{content}}: The text or document you want summarized.
+Input Variables
+- {content}: The text or document you want summarized.
+
+Example:
+Input
+{content}: "The rapid advancement of artificial intelligence has sparked both excitement and concern across various industries. While AI promises increased efficiency and innovative solutions, it also raises questions about job displacement and ethical implications."
+
+Output
+- Main Ideas: AI advancements bring both opportunities and challenges.
+- Efficiency and Innovation: AI offers increased efficiency and innovative solutions.
+- Concerns: Raises questions about job displacement and ethical implications.
 
 Please ensure that the summary is accurate and reflects the original content's intent.
 """
@@ -42,23 +57,26 @@ Please ensure that the summary is accurate and reflects the original content's i
 mistral_key = os.getenv("mistral_key")
 llm = ChatMistralAI(model="mistral-large-latest", temperature=0.6, mistral_api_key=mistral_key, max_tokens=5000)
 prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are an AI summarization agent tasked with summarizing the provided content."),
+    ("system", "You are an AI summarization expert. Your primary function is to distill complex information into clear, concise summaries while maintaining the original intent and key details. Use a neutral and informative tone."),
     ("human", template),
 ])
 
 def verify_google_token(token):
     try:
-        #print(json.dumps(token))
-        #print(os.getenv("GOOGLE_CLIENT_ID"))
-        idinfo = id_token.verify_oauth2_token(
-            token, 
-            requests.Request(), 
-            os.getenv('GOOGLE_CLIENT_ID')
+        response = http_requests.get(
+            'https://oauth2.googleapis.com/tokeninfo',
+            params={'access_token': token}
         )
-        print(idinfo)
-        return idinfo
-    except ValueError as ve:
-        traceback.print_exc()
+        if response.status_code != 200:
+            return None
+        
+        token_info = response.json()
+        if token_info.get('error'):
+            return None
+            
+        return token_info
+    except Exception as e:
+        print(f"Token verification error: {str(e)}")
         return None
 
 def verify_token(f):
@@ -89,6 +107,7 @@ def verify_token(f):
 def summarize():
     try:
         content = request.json['content']
+        print(content)
         input_data = {
             "content": content
         }

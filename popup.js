@@ -1,6 +1,7 @@
 let user = null;
 let authToken = null;
 const client_id="218659612489-o0dfka4c7ujh31najnvjn4mffui09h03.apps.googleusercontent.com";
+
 document.addEventListener('DOMContentLoaded', async () => {
   const loginButton = document.getElementById('loginButton');
   const logoutButton = document.getElementById('logoutButton');
@@ -24,14 +25,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function handleLogin() {
   try {
     const token = await chrome.identity.getAuthToken({ interactive: true });
-    //let idToken=getIdToken(token.token, client_id);
-    //console.log(idToken);
-    console.log(token);
     const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${token.token}` }
     });
     user = await response.json();
-    console.log(user)
     authToken = token;
     chrome.storage.local.set({ 
       user: user,
@@ -100,36 +97,11 @@ async function handleSummarize() {
     }
   });
 }
-async function getIdToken(token, clientId) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      console.log(token);
-      console.log(clientId);
-      const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `client_id=${clientId}&grant_type=authorization_code`
-      });
-      
-      const data = await response.json();
-      console.log(data)
-      if (data.error) {
-        reject(new Error(data.error));
-      } else {
-        resolve(data.id_token);
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
+
 async function fetchSummary(content, token) {
   try {
-    //token=getIdToken(token.token,client_id)
-    const response = await fetch('http://127.0.0.1:5000/summarize', {
-      method: 'POST',
+    const response = await fetch('https://summarizer-medium-naman.vercel.app/summarize', {
+      method: ['POST', 'OPTIONS'],
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token.token}`
