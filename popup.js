@@ -1,6 +1,7 @@
 let user = null;
 let authToken = null;
 const client_id="218659612489-o0dfka4c7ujh31najnvjn4mffui09h03.apps.googleusercontent.com";
+const API_TIMEOUT = 1800000;
 
 document.addEventListener('DOMContentLoaded', async () => {
   const loginButton = document.getElementById('loginButton');
@@ -8,7 +9,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const summarizeButton = document.getElementById('summarizeButton');
   const errorDiv = document.getElementById('error');
   
-  // Check if user is already logged in
   chrome.storage.local.get(['user', 'usageCount', 'authToken'], (result) => {
     if (result.user && result.authToken) {
       user = result.user;
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function handleLogin() {
   try {
     const token = await chrome.identity.getAuthToken({ interactive: true });
-    const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+    const response = await fetchWithTimeout('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${token.token}` }
     });
     user = await response.json();
@@ -90,7 +90,11 @@ async function handleSummarize() {
         updateUI(newCount);
       }
     } catch (error) {
-      showError('Failed to generate summary. Please try again.');
+      if (error.name === 'TimeoutError') {
+        showError('Request timed out. Please try again.');
+      } else {
+        showError('Failed to generate summary. Please try again.');
+      }
       console.error('Summarization failed:', error);
     } finally {
       summaryResult.classList.remove('loading');
@@ -98,24 +102,57 @@ async function handleSummarize() {
   });
 }
 
+async function fetchWithTimeout(resource, options = {}) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), API_TIMEOUT);
+  
+  try {
+    const response = await fetch(resource, {
+      ...options,
+      signal: controller.signal,
+      mode: 'cors'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response;
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new TimeoutError();
+    }
+    throw error;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+class TimeoutError extends Error {
+  constructor() {
+    super('Request timed out');
+    this.name = 'TimeoutError';
+  }
+}
+
 async function fetchSummary(content, token) {
   try {
-    const response = await fetch('https://summarizer-medium-naman.vercel.app/summarize', {
-      method: ['POST', 'OPTIONS'],
+    const response = await fetchWithTimeout('https://summarizer-medium-naman.vercel.app/summarize', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token.token}`
+        'Authorization': `Bearer ${token.token}`,
+        'Accept': 'application/json'
       },
       body: JSON.stringify({ content })
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
     const data = await response.json();
     return data.summary;
   } catch (error) {
+    if (error.name === 'TimeoutError') {
+      throw error;
+    }
     throw new Error('Failed to fetch summary from server');
   }
 }
