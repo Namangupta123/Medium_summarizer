@@ -1,27 +1,36 @@
 {
-  "manifest_version": 3,
-  "name": "Medium Blog Summarizer",
-  "version": "1.0",
-  "description": "Summarizes the content of Medium blogs using LangChain.",
-  "permissions": [
-      "activeTab", 
-      "scripting",
-      "identity",
-      "storage"
-  ],
-  "action": {
-      "default_popup": "medium.html",
-      "default_icon": "icon.png"
-  },
-  "background": {
-      "service_worker": "background.js"
-  },
-  "host_permissions": ["https://medium.com/"],
-  "oauth2": {
-      "client_id": "218659612489-o0dfka4c7ujh31najnvjn4mffui09h03.apps.googleusercontent.com",
-      "scopes": [
-          "https://www.googleapis.com/auth/userinfo.email",
-          "https://www.googleapis.com/auth/userinfo.profile"
-      ]
+    "manifest_version": 3,
+    "name": "Medium Blog Summarizer",
+    "version": "1.0",
+    "description": "Summarizes the content of Medium blogs using LangChain.",
+    "permissions": [
+        "activeTab", 
+        "scripting",
+        "identity",
+        "storage",
+        "webRequest"
+    ],
+    "action": {
+        "default_popup": "medium.html",
+        "default_icon": "icon.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "host_permissions": [
+        "https://medium.com/*",
+        "https://*.medium.com/*",
+        "https://summarizer-medium-naman.vercel.app/*",
+        "https://www.googleapis.com/oauth2/*"
+    ],
+    "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self'"
+    },
+    "oauth2": {
+        "client_id": "218659612489-o0dfka4c7ujh31najnvjn4mffui09h03.apps.googleusercontent.com",
+        "scopes": [
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile"
+        ]
+    }
   }
-}

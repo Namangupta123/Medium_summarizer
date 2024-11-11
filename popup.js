@@ -25,7 +25,7 @@ async function handleLogin() {
   try {
     const token = await chrome.identity.getAuthToken({ interactive: true });
     const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token.token}` }
     });
     user = await response.json();
     authToken = token;
@@ -33,7 +33,7 @@ async function handleLogin() {
     chrome.storage.local.set({ 
       user: user,
       usageCount: 0,
-      authToken: token
+      authToken: token.token
     });
     
     updateUI(0);
@@ -100,11 +100,13 @@ async function handleSummarize() {
 
 async function fetchSummary(content, token) {
   try {
-    const response = await fetch('http://127.0.0.1:5000/summarize', {
+    const response = await fetch('https://summarizer-medium-naman.vercel.app/summarize', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token.token}`,
+        'Origin': chrome.runtime.getURL(''),
+        'Accept': 'application/json'
       },
       body: JSON.stringify({ content })
     });
