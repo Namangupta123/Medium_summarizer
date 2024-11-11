@@ -1,6 +1,8 @@
+import 'dotenv/config';
+
 let user = null;
 let authToken = null;
-const client_id="218659612489-o0dfka4c7ujh31najnvjn4mffui09h03.apps.googleusercontent.com";
+const client_id=porcess.env.GOOGLE_CLIENT_ID;
 const API_TIMEOUT = 1800000;
 
 document.addEventListener('DOMContentLoaded', async () => {

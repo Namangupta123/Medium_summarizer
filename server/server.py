@@ -2,7 +2,8 @@ from flask import Flask, request, jsonify
 import json
 from flask_cors import CORS
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser 
+from langchain_core.output_parsers import StrOutputParser
+from langchain_openai import AzureChatOpenAI 
 from langchain_mistralai import ChatMistralAI
 import os
 from dotenv import load_dotenv
@@ -13,7 +14,12 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from fastapi.middleware.cors import CORSMiddleware
 import requests as http_requests 
+import os
 load_dotenv()
+
+os.environ["OPENAI_API_VERSION"] = "2024-08-01-preview"
+os.environ["AZURE_OPENAI_ENDPOINT"] = "https://octo-summary.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview"
+os.environ["AZURE_OPENAI_API_KEY"] = "7373c122a57a489bb156e2e1026d495f"
 
 app = Flask(__name__)
 CORS(app, resources={
@@ -54,8 +60,17 @@ Output
 Please ensure that the summary is accurate and reflects the original content's intent.
 """
 
-mistral_key = os.getenv("mistral_key")
-llm = ChatMistralAI(model="mistral-large-latest", temperature=0.6, mistral_api_key=mistral_key, max_tokens=5000)
+# mistral_key = os.getenv("mistral_key")
+llm = AzureChatOpenAI(
+    openai_api_version="2024-08-01-preview",
+    azure_endpoint="https://octo-summary.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview",
+    openai_api_key="7373c122a57a489bb156e2e1026d495f",
+    deployment_name="gpt-4",
+    temperature=0.7,
+    max_retries=1,
+    max_tokens=900,
+    model_version="turbo-2024-04-09",
+)
 prompt = ChatPromptTemplate.from_messages([
     ("system", "You are an AI summarization expert. Your primary function is to distill complex information into clear, concise summaries while maintaining the original intent and key details. Use a neutral and informative tone."),
     ("human", template),
@@ -103,7 +118,7 @@ def verify_token(f):
     return decorated
 
 @app.route('/summarize', methods=['POST'])
-@verify_token
+# @verify_token
 def summarize():
     try:
         content = request.json['content']
@@ -117,8 +132,10 @@ def summarize():
             | StrOutputParser()
         )
         summary = response.invoke(input_data)
+        print(summary)
         return jsonify({"summary": summary})
     except Exception as e:
+        print("Not summary")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
