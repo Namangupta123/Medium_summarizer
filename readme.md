@@ -1,27 +1,27 @@
 # Medium Blog Summarizer Chrome Extension
 
-A Chrome extension that summarizes Medium blog posts using LangChain and Mistral AI, with Google Authentication and usage limits.
+A Chrome extension that summarizes Medium blog posts using LangChain and OPENAI, with Google Authentication and usage limits.
 
 ## Features
 
 - 🔐 Google Authentication
 - 📝 One-click Medium article summarization
-- 🤖 Powered by Mistral AI and LangChain
+- 🤖 Powered by OPENAI and LangChain
 - 📊 Usage tracking (5 summaries per user)
 - 🎨 Clean and modern UI
+- Backend: Python Flask Server
+- AI: LangChain, OpenAI
 
 ## Tech Stack
 
 - Frontend: HTML, CSS, JavaScript
-- Backend: Flask (Python)
-- AI: Mistral AI, LangChain
 - Authentication: Google OAuth 2.0
 
 ## Setup
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/medium-summarizer.git
+git clone https://github.com/Namangupta123/Medium_summarizer
 cd medium-summarizer
 ```
 
@@ -32,9 +32,7 @@ pip install -r requirements.txt
 
 3. Set up environment variables:
    - Copy `.env.example` to `.env` in the server directory
-   - Add your Mistral AI API key
    - Add your Google Client ID
-   - Add a JWT secret key
 
 4. Load the extension in Chrome:
    - Open Chrome and go to `chrome://extensions/`
@@ -42,10 +40,37 @@ pip install -r requirements.txt
    - Click "Load unpacked"
    - Select the extension directory
 
-5. Start the Flask server:
+## Server Component
+
+The server-side code for this extension is maintained in a separate repository:
+- Server Repository: https://github.com/Namangupta123/summarizer_medium_naman
+
+The server provides:
+- API endpoints for article summarization
+- User authentication validation
+- Usage tracking and limiting
+- OpenAI integration via LangChain
+
+### Server Setup
+
+1. Clone the server repository:
 ```bash
-cd server
-python server.py
+git clone https://github.com/Namangupta123/summarizer_medium_naman
+cd summarizer_medium_naman
+```
+
+2. Install server dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Configure server environment variables:
+   - Copy `.env.example` to `.env`
+   - Add your OpenAI API key
+
+4. Run the server:
+```bash
+python3 server.py
 ```
 
 ## Usage
