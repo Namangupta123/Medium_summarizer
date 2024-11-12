@@ -28,7 +28,7 @@ async function handleLogin() {
       headers: { Authorization: `Bearer ${token.token}` }
     });
     user = await response.json();
-    authToken = token;
+    authToken = token.token;
     
     chrome.storage.local.set({ 
       user: user,
@@ -104,7 +104,7 @@ async function fetchSummary(content, token) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token.token}`,
+        'Authorization': `Bearer ${token}`,
         'Origin': chrome.runtime.getURL(''),
         'Accept': 'application/json'
       },
