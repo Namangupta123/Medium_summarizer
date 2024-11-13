@@ -12,7 +12,16 @@
     ],
     "action": {
         "default_popup": "medium.html",
-        "default_icon": "Medium_summarizer.png"
+        "default_icon": {
+            "16":"Medium_summarizer.png",
+            "48":"Medium_summarizer.png",
+            "128":"Medium_summarizer.png"
+        }
+    },
+    "icons":{
+        "16":"Medium_summarizer.png",
+        "48":"Medium_summarizer.png",
+        "128":"Medium_summarizer.png"
     },
     "background": {
         "service_worker": "background.js"
