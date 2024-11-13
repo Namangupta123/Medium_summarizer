@@ -2,3 +2,4 @@ server/.env
 .env
 node_modules
 server
+med.html
