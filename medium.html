@@ -3,49 +3,61 @@
   <head>
     <title>Medium Summarizer</title>
     <style>
+      :root {
+        --primary-color: #2563eb;
+        --secondary-color: #1e40af;
+        --background-color: #f8fafc;
+        --text-color: #334155;
+        --border-color: #e2e8f0;
+      }
+
       body {
-        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        background-color: #ffffff;
-        color: #333;
-        padding: 20px;
-        width: 350px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        padding: 16px;
+        width: 380px;
         margin: 0;
+        line-height: 1.5;
       }
 
       .container {
-        background-color: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        padding: 24px;
       }
 
       h3 {
-        font-size: 1.4em;
-        color: #1a73e8;
+        font-size: 1.5rem;
+        color: var(--text-color);
         text-align: center;
-        margin: 0 0 20px 0;
-        padding-top: 10px;
-        font-weight: 600;
+        margin: 0 0 24px 0;
+        font-weight: 700;
+        letter-spacing: -0.025em;
       }
 
       .button {
-        display: block;
+        display: flex;
         width: 100%;
-        padding: 12px;
-        background-color: #1a73e8;
-        color: #fff;
+        padding: 12px 16px;
+        background-color: var(--primary-color);
+        color: white;
         border: none;
-        border-radius: 8px;
-        font-size: 1em;
+        border-radius: 12px;
+        font-size: 0.95rem;
         cursor: pointer;
-        transition: all 0.3s ease;
-        font-weight: 500;
-        margin-bottom: 12px;
+        transition: all 0.2s ease;
+        font-weight: 600;
+        margin-bottom: 16px;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
       }
 
       .button:hover {
-        background-color: #1557b0;
+        background-color: var(--secondary-color);
         transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .button:active {
@@ -53,37 +65,35 @@
       }
 
       #summaryResult {
-        margin-top: 15px;
-        padding: 15px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        font-size: 0.95em;
-        color: #444;
+        margin-top: 16px;
+        padding: 16px;
+        background-color: var(--background-color);
+        border-radius: 12px;
+        font-size: 0.95rem;
+        color: var(--text-color);
         line-height: 1.6;
         min-height: 80px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--border-color);
+      }
+
+      .info-box {
+        background-color: var(--background-color);
+        border-radius: 12px;
+        padding: 12px;
+        margin: 12px 0;
+        border: 1px solid var(--border-color);
       }
 
       #usageCount {
         text-align: center;
-        color: #666;
-        margin: 15px 0;
-        font-size: 0.9em;
-        padding: 8px;
-        background-color: #f8f9fa;
-        border-radius: 6px;
-        border: 1px solid #e0e0e0;
+        font-size: 0.9rem;
+        font-weight: 500;
       }
 
       #userInfo {
         text-align: center;
-        margin-bottom: 15px;
-        font-size: 0.95em;
-        color: #444;
-        padding: 8px;
-        background-color: #f8f9fa;
-        border-radius: 6px;
-        border: 1px solid #e0e0e0;
+        font-size: 0.9rem;
+        font-weight: 500;
       }
 
       .hidden {
@@ -91,42 +101,87 @@
       }
 
       #logoutButton {
-        background-color: #dc3545;
+        background-color: #ef4444;
       }
 
       #logoutButton:hover {
-        background-color: #c82333;
+        background-color: #dc2626;
       }
 
       .loading {
         text-align: center;
-        color: #666;
+        color: var(--text-color);
         font-style: italic;
       }
 
       .error {
-        color: #dc3545;
+        color: #ef4444;
         text-align: center;
-        margin: 10px 0;
-        font-size: 0.9em;
+        margin: 12px 0;
+        font-size: 0.9rem;
+        padding: 12px;
+        background-color: #fee2e2;
+        border-radius: 12px;
+        border: 1px solid #fecaca;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        background-color: #dbeafe;
+        color: var(--primary-color);
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+
+      #loginButton {
+        background-color: white;
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      }
+
+      #loginButton:hover {
+        background-color: var(--background-color);
       }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div class="container">
       <h3>Medium Summarizer</h3>
       <div id="loginSection">
         <button id="loginButton" class="button">
-          <i class="fab fa-google"></i> Sign in with Google
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21.8055 10.0415H21V10H12V14H17.6515C16.827 16.3285 14.6115 18 12 18C8.6865 18 6 15.3135 6 12C6 8.6865 8.6865 6 12 6C13.5295 6 14.921 6.577 15.9805 7.5195L18.809 4.691C17.023 3.0265 14.634 2 12 2C6.4775 2 2 6.4775 2 12C2 17.5225 6.4775 22 12 22C17.5225 22 22 17.5225 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z" fill="#FFC107"/>
+            <path d="M3.15302 7.3455L6.43852 9.755C7.32752 7.554 9.48052 6 12 6C13.5295 6 14.921 6.577 15.9805 7.5195L18.809 4.691C17.023 3.0265 14.634 2 12 2C8.15902 2 4.82802 4.1685 3.15302 7.3455Z" fill="#FF3D00"/>
+            <path d="M12 22C14.583 22 16.93 21.0115 18.7045 19.404L15.6095 16.785C14.5718 17.5742 13.3038 18.001 12 18C9.39897 18 7.19047 16.3415 6.35847 14.027L3.09747 16.5395C4.75247 19.778 8.11347 22 12 22Z" fill="#4CAF50"/>
+            <path d="M21.8055 10.0415H21V10H12V14H17.6515C17.2571 15.1082 16.5467 16.0766 15.608 16.7855L15.6095 16.785L18.7045 19.404C18.4855 19.6025 22 17 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z" fill="#1976D2"/>
+          </svg>
+          Sign in with Google
         </button>
       </div>
       <div id="mainSection" class="hidden">
-        <div id="userInfo"></div>
-        <button id="summarizeButton" class="button">Get Summary</button>
-        <div id="usageCount">Remaining uses: <span id="remainingUses">5</span></div>
+        <div id="userInfo" class="info-box"></div>
+        <button id="summarizeButton" class="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6H20M4 12H20M4 18H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Get Summary
+        </button>
+        <div id="usageCount" class="info-box">
+          Remaining uses: <span class="badge" id="remainingUses">5</span>
+        </div>
         <div id="summaryResult">Click "Get Summary" to fetch the summary.</div>
         <div id="error" class="error hidden"></div>
-        <button id="logoutButton" class="button">Sign Out</button>
+        <button id="logoutButton" class="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 17L21 12M21 12L16 7M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Sign Out
+        </button>
       </div>
     </div>
     <script src="popup.js"></script>
