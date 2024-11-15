@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (result.user && result.authToken) {
       user = result.user;
       authToken = result.authToken;
-      await updateUsageCount();
+      await updateUsageCount(result.authToken);
       updateUI();
     }
   });
@@ -24,19 +24,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function handleLogin() {
   try {
-    const token = await chrome.identity.getAuthToken({ interactive: true });
-    const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: { Authorization: `Bearer ${token.token}` }
+    const response = await chrome.identity.getAuthToken({ interactive: true });
+    authToken = response.token;
+    
+    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: `Bearer ${authToken}` }
     });
-    user = await response.json();
-    authToken = token.token;
+    
+    if (!userInfoResponse.ok) {
+      throw new Error('Failed to get user info');
+    }
+    
+    user = await userInfoResponse.json();
     
     chrome.storage.local.set({ 
       user: user,
-      authToken: token.token
+      authToken: authToken
     });
     
-    await updateUsageCount();
+    await updateUsageCount(authToken);
     updateUI();
   } catch (error) {
     showError('Login failed. Please try again.');
@@ -45,18 +51,20 @@ async function handleLogin() {
 }
 
 function handleLogout() {
-  chrome.identity.clearAllCachedAuthTokens();
+  if (authToken) {
+    chrome.identity.removeCachedAuthToken({ token: authToken });
+  }
   chrome.storage.local.remove(['user', 'authToken']);
   user = null;
   authToken = null;
   updateUI();
 }
 
-async function updateUsageCount() {
+async function updateUsageCount(token) {
   try {
     const response = await fetch('https://summarizer-medium-naman.vercel.app/user/summary-count', {
       headers: {
-        'Authorization': `Bearer ${authToken}`,
+        'Authorization': `Bearer ${token}`,
         'Accept': 'application/json'
       }
     });
@@ -66,7 +74,7 @@ async function updateUsageCount() {
     }
     
     const data = await response.json();
-    const remainingUses = 5 - data.count;
+    const remainingUses = data.remaining;
     document.getElementById('remainingUses').textContent = remainingUses;
     
     return remainingUses;
@@ -86,7 +94,7 @@ async function handleSummarize() {
   const errorDiv = document.getElementById('error');
   errorDiv.classList.add('hidden');
 
-  const remainingUses = await updateUsageCount();
+  const remainingUses = await updateUsageCount(authToken);
   
   if (remainingUses === 0) {
     showError('You have reached your daily limit. Please try again tomorrow.');
@@ -108,8 +116,8 @@ async function handleSummarize() {
     const summary = await fetchSummary(content, authToken);
 
     if (summary) {
-      summaryResult.textContent = summary;
-      await updateUsageCount(); // Refresh the count after successful summary
+      summaryResult.innerHTML = summary;
+      await updateUsageCount(authToken);
     }
   } catch (error) {
     showError('Failed to generate summary. Please try again.');
@@ -126,7 +134,6 @@ async function fetchSummary(content, token) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
-        'Origin': chrome.runtime.getURL(''),
         'Accept': 'application/json'
       },
       body: JSON.stringify({ content })

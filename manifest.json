@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Medium Blog Summarizer",
     "version": "1.0",
-    "description": "Summarizes the content of Medium blogs using LangChain.",
+    "description": "AI-powered summarization for Medium articles",
     "permissions": [
         "activeTab", 
         "scripting",
@@ -39,7 +39,8 @@
         "client_id": "218659612489-o0dfka4c7ujh31najnvjn4mffui09h03.apps.googleusercontent.com",
         "scopes": [
             "https://www.googleapis.com/auth/userinfo.email",
-            "https://www.googleapis.com/auth/userinfo.profile"
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "openid"
         ]
     }
   }
