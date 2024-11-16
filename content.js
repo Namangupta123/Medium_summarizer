@@ -25,11 +25,24 @@ chrome.storage.onChanged.addListener((changes) => {
   }
 });
 
+// Observe DOM changes to handle dynamic content loading
+const observer = new MutationObserver((mutations) => {
+  if (document.querySelector('article') && !document.getElementById('medium-summarizer-btn')) {
+    injectSummarizeButton();
+  }
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
+});
+
 function injectSummarizeButton() {
   if (document.getElementById('medium-summarizer-btn')) return;
 
-  const articleContent = document.querySelector('article');
-  if (!articleContent) return;
+  // Wait for article to be available
+  const article = document.querySelector('article');
+  if (!article) return;
 
   const container = document.createElement('div');
   container.className = 'medium-summarizer-container';
@@ -49,7 +62,7 @@ function injectSummarizeButton() {
     </div>
   `;
 
-  articleContent.parentElement.insertBefore(container, articleContent);
+  document.body.appendChild(container);
 
   document.getElementById('medium-summarizer-btn').addEventListener('click', handleSummarize);
   document.querySelector('.close-summary').addEventListener('click', () => {
@@ -73,34 +86,48 @@ async function handleSummarize() {
   resultDiv.classList.remove('hidden');
 
   try {
-    const remainingUses = await updateUsageCount(authToken);
-    
-    if (remainingUses === 0) {
-      summaryContent.textContent = 'You have reached your daily limit. Please try again tomorrow.';
-      return;
+    // Get article content
+    const article = document.querySelector('article');
+    if (!article) {
+      throw new Error('No article content found');
     }
 
-    const articleContent = document.querySelector('article').innerText;
-    const summary = await fetchSummary(articleContent, authToken);
+    // Clean the article text
+    const articleText = article.innerText
+      .replace(/\n+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
 
+    if (!articleText) {
+      throw new Error('No article content found');
+    }
+
+    const summary = await fetchSummary(articleText);
+    
     if (summary) {
-      summaryContent.textContent = summary;
-      const newRemainingUses = await updateUsageCount(authToken);
-      remainingUsesSpan.textContent = `Remaining uses: ${newRemainingUses}`;
+      summaryContent.innerHTML = `<p>${summary}</p>`;
+      const remainingUses = await updateUsageCount();
+      if (remainingUses !== null) {
+        remainingUsesSpan.textContent = `Remaining uses: ${remainingUses}`;
+      }
     }
   } catch (error) {
-    summaryContent.textContent = 'Failed to generate summary. Please try again.';
+    summaryContent.innerHTML = `<p class="error-message">${error.message || 'Failed to generate summary. Please try again.'}</p>`;
     console.error('Summarization failed:', error);
   }
 }
 
-async function updateUsageCount(token) {
+async function updateUsageCount() {
   try {
-    const response = await fetch('https://summarizer-medium-naman.vercel.app/user/summary-count', {
+    const response = await fetch('https://summarizer-medium-naman.vercel.app/api/user/summary-count', {
+      method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      }
+        'Authorization': `Bearer ${authToken}`,
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      credentials: 'include',
+      mode: 'cors'
     });
     
     if (!response.ok) {
@@ -115,30 +142,39 @@ async function updateUsageCount(token) {
   }
 }
 
-async function fetchSummary(content, token) {
+async function fetchSummary(content) {
   try {
-    const response = await fetch('https://summarizer-medium-naman.vercel.app/summarize', {
+    const response = await fetch('https://summarizer-medium-naman.vercel.app/api/summarize', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
+        'Authorization': `Bearer ${authToken}`,
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
-      body: JSON.stringify({ content })
+      credentials: 'include',
+      mode: 'cors',
+      body: JSON.stringify({ 
+        content,
+        url: window.location.href
+      })
     });
 
     if (response.status === 429) {
-      const data = await response.json();
-      throw new Error(data.error || 'Daily limit reached. Please try again tomorrow.');
+      throw new Error('Daily limit reached. Please try again tomorrow.');
     }
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to generate summary (${response.status})`);
     }
 
     const data = await response.json();
+    if (!data.summary) {
+      throw new Error('No summary received from server');
+    }
+
     return data.summary;
   } catch (error) {
-    throw new Error('Failed to fetch summary from server');
+    throw new Error(error.message || 'Failed to fetch summary from server');
   }
 }

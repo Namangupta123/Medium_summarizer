@@ -4,50 +4,48 @@
     "version": "1.0",
     "description": "AI-powered summarization for Medium articles",
     "permissions": [
-        "activeTab", 
-        "scripting",
-        "identity",
-        "storage",
-        "webRequest"
-    ],
-    "content_scripts": [
-        {
-            "matches": ["https://medium.com/*", "https://*.medium.com/*"],
-            "js": ["content.js"],
-            "css": ["content.css"]
-        }
+      "activeTab",
+      "scripting",
+      "identity",
+      "storage",
+      "webRequest",
+      "tabs"
     ],
     "action": {
-        "default_popup": "medium.html",
-        "default_icon": {
-            "16":"Medium_summarizer.png",
-            "48":"Medium_summarizer.png",
-            "128":"Medium_summarizer.png"
-        }
+      "default_popup": "medium.html",
+      "default_icon": {
+        "16": "Medium_summarizer.png",
+        "48": "Medium_summarizer.png",
+        "128": "Medium_summarizer.png"
+      }
     },
-    "icons":{
-        "16":"Medium_summarizer.png",
-        "48":"Medium_summarizer.png",
-        "128":"Medium_summarizer.png"
+    "icons": {
+      "16": "Medium_summarizer.png",
+      "48": "Medium_summarizer.png",
+      "128": "Medium_summarizer.png"
     },
     "background": {
-        "service_worker": "background.js"
+      "service_worker": "background.js"
     },
     "host_permissions": [
-        "https://medium.com/*",
-        "https://medium.com",
-        "https://summarizer-medium-naman.vercel.app/*",
-        "https://www.googleapis.com/oauth2/*"
+      "https://medium.com/*",
+      "https://*.medium.com/*",
+      "https://javascript.plainenglish.io/*",
+      "https://towardsdatascience.com/*",
+      "https://betterprogramming.pub/*",
+      "https://levelup.gitconnected.com/*",
+      "https://summarizer-medium-naman.vercel.app/*",
+      "https://www.googleapis.com/oauth2/*"
     ],
     "content_security_policy": {
       "extension_pages": "script-src 'self'; object-src 'self'"
     },
     "oauth2": {
-        "client_id": "218659612489-o0dfka4c7ujh31najnvjn4mffui09h03.apps.googleusercontent.com",
-        "scopes": [
-            "https://www.googleapis.com/auth/userinfo.email",
-            "https://www.googleapis.com/auth/userinfo.profile",
-            "openid"
-        ]
+      "client_id": "218659612489-o0dfka4c7ujh31najnvjn4mffui09h03.apps.googleusercontent.com",
+      "scopes": [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "openid"
+      ]
     }
-}
+  }
