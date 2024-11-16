@@ -1,4 +1,12 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // This listener is no longer needed as we're handling everything in popup.js
-  return true;
+  if (message.type === 'checkAuth') {
+    chrome.storage.local.get(['user', 'authToken'], (result) => {
+      sendResponse({
+        isAuthenticated: !!(result.user && result.authToken),
+        user: result.user,
+        authToken: result.authToken
+      });
+    });
+    return true;
+  }
 });

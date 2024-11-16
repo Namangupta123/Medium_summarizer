@@ -3,155 +3,74 @@
   <head>
     <title>Medium Summarizer</title>
     <style>
-      :root {
-        --primary-color: #2563eb;
-        --secondary-color: #1e40af;
-        --background-color: #f8fafc;
-        --text-color: #334155;
-        --border-color: #e2e8f0;
-      }
-
       body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        background-color: var(--background-color);
-        color: var(--text-color);
+        width: 300px;
         padding: 16px;
-        width: 380px;
-        margin: 0;
-        line-height: 1.5;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       }
 
       .container {
-        background-color: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
 
       h3 {
-        font-size: 1.5rem;
-        color: var(--text-color);
+        margin: 0;
+        color: #1a1a1a;
         text-align: center;
-        margin: 0 0 24px 0;
-        font-weight: 700;
-        letter-spacing: -0.025em;
       }
 
       .button {
         display: flex;
-        width: 100%;
-        padding: 12px 16px;
-        background-color: var(--primary-color);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-weight: 600;
-        margin-bottom: 16px;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
         gap: 8px;
-      }
-
-      .button:hover {
-        background-color: var(--secondary-color);
-        transform: translateY(-1px);
-      }
-
-      .button:active {
-        transform: translateY(0);
-      }
-
-      #summaryResult {
-        margin-top: 16px;
-        padding: 16px;
-        background-color: var(--background-color);
-        border-radius: 12px;
-        font-size: 0.95rem;
-        color: var(--text-color);
-        line-height: 1.6;
-        min-height: 80px;
-        border: 1px solid var(--border-color);
-      }
-
-      .info-box {
-        background-color: var(--background-color);
-        border-radius: 12px;
-        padding: 12px;
-        margin: 12px 0;
-        border: 1px solid var(--border-color);
-      }
-
-      #usageCount {
-        text-align: center;
-        font-size: 0.9rem;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
         font-weight: 500;
+        transition: all 0.2s;
       }
 
-      #userInfo {
-        text-align: center;
-        font-size: 0.9rem;
-        font-weight: 500;
+      #loginButton {
+        background-color: white;
+        border: 1px solid #e2e8f0;
+        color: #1a1a1a;
+      }
+
+      #logoutButton {
+        background-color: #ef4444;
+        color: white;
       }
 
       .hidden {
         display: none;
       }
 
-      #logoutButton {
-        background-color: #ef4444;
-      }
-
-      #logoutButton:hover {
-        background-color: #dc2626;
-      }
-
-      .loading {
+      #userInfo {
         text-align: center;
-        color: var(--text-color);
-        font-style: italic;
+        padding: 8px;
+        background-color: #f8fafc;
+        border-radius: 8px;
+        font-size: 14px;
       }
 
       .error {
         color: #ef4444;
         text-align: center;
-        margin: 12px 0;
-        font-size: 0.9rem;
-        padding: 12px;
+        padding: 8px;
         background-color: #fee2e2;
-        border-radius: 12px;
-        border: 1px solid #fecaca;
-      }
-
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 4px 12px;
-        background-color: #dbeafe;
-        color: var(--primary-color);
-        border-radius: 9999px;
-        font-size: 0.875rem;
-        font-weight: 600;
-      }
-
-      #loginButton {
-        background-color: white;
-        color: var(--text-color);
-        border: 1px solid var(--border-color);
-        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      }
-
-      #loginButton:hover {
-        background-color: var(--background-color);
+        border-radius: 8px;
+        font-size: 14px;
       }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div class="container">
       <h3>Medium Summarizer</h3>
+      
       <div id="loginSection">
         <button id="loginButton" class="button">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -163,26 +82,18 @@
           Sign in with Google
         </button>
       </div>
+
       <div id="mainSection" class="hidden">
-        <div id="userInfo" class="info-box"></div>
-        <button id="summarizeButton" class="button">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 6H20M4 12H20M4 18H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Get Summary
-        </button>
-        <div id="usageCount" class="info-box">
-          Remaining uses: <span class="badge" id="remainingUses">5</span>
-        </div>
-        <div id="summaryResult">Click "Get Summary" to fetch the summary.</div>
-        <div id="error" class="error hidden"></div>
+        <div id="userInfo"></div>
         <button id="logoutButton" class="button">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 17L21 12M21 12L16 7M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 17L21 12M21 12L16 7M21 12H9"/>
           </svg>
           Sign Out
         </button>
       </div>
+
+      <div id="error" class="error hidden"></div>
     </div>
     <script src="popup.js"></script>
   </body>
